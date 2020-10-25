@@ -37,6 +37,7 @@ class TaskFormViewModel(application: Application) : AndroidViewModel(application
             mTaskRepository.create(task, object : APIListener<Boolean> {
                 override fun onSuccess(model: Boolean) {
                     mValidation.value = ValidationListener()
+
                 }
 
                 override fun onFailure(message: String) {
