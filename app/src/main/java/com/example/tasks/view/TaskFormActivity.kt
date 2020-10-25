@@ -9,6 +9,8 @@ import android.widget.DatePicker
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.tasks.R
+import com.example.tasks.service.constants.TaskConstants
+import com.example.tasks.service.model.PriorityModel
 import com.example.tasks.service.model.TaskModel
 import com.example.tasks.viewmodel.TaskFormViewModel
 import kotlinx.android.synthetic.main.activity_task_form.*
@@ -33,8 +35,17 @@ class TaskFormActivity : AppCompatActivity(), View.OnClickListener,
         listeners()
         observe()
 
-//        loadDataFromActivity ()
         mViewModel.listPriorities()
+
+        loadDataFromActivity ()
+    }
+
+    private fun loadDataFromActivity () {
+        val bundle = intent.extras
+        if (bundle != null) {
+            mTaskId = bundle.getInt(TaskConstants.BUNDLE.TASKID)
+            mViewModel.load(mTaskId)
+        }
     }
 
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
@@ -84,6 +95,27 @@ class TaskFormActivity : AppCompatActivity(), View.OnClickListener,
             }
         })
 
+        mViewModel.task.observe(this, androidx.lifecycle.Observer {
+            edit_description.setText(it.description)
+            check_complete.isChecked = it.complete
+            spinner_priority.setSelection(getIndex(it.priorityId))
+
+            val date = SimpleDateFormat("yyyy-MM-dd").parse(it.dueDate)
+            button_date.text = mDateFormat.format(date)
+        })
+
+    }
+
+    private fun getIndex (priorityId: Int): Int {
+        var index = 0
+
+        for (i in 0 until mListPriorityId.count()) {
+            if (mListPriorityId[i] == priorityId) {
+                index = i
+                break
+            }
+        }
+        return index
     }
 
     private fun handleSave() {
